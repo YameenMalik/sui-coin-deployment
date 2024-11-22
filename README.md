@@ -58,6 +58,8 @@ On Sui chain, contracts are deployed as packages and each package can have one o
 - **TreasuryCap:** This is the id/address of the treasury capability object. This is particular to our coin contract, not all contracts have a treasury cap. Upon deployment of the coin contract, we transfer the treasury cap object to the deployer. This can be later transfer by the deployer to some other account if need be. Only the holder of treasury cap object can mint/burn coins.
 - **CoinMetadata:** This is the id/address of the coin metadata object. This is particular to the our coin contract. This is a shared object that contains the meta data of our coin like its symbol, name and description.
 
+Other then these objects, you need to be aware of the type of your deployed coin. This is important as your coin is known by its type on-chain. The type of a coin is composed of 1) the package id/address 2) the module name 3) Name of the coin. These three are combined to make a coin type which looks like this: `<pkg_address>::<module>::<CoinSymbol>`.
+
 ### Deployment
 In order to deploy the coin contract first navigate to the directory containing the `Move.toml` and `sources/` of the contract. Once at the right path, you can publish the contract to Sui chain using `sui client publish --json`. The `--json` is optional but it returns the output of a transaction in json format that you can later easily go through. Inside the JSON, you can see the objects that were mutated during the contract deployment:
 ```
@@ -118,4 +120,13 @@ Each coin contract has a `mint`  method that take as input:
 - **Recipient:** The address of the account that will be receiving the minted coins
 - **TxContext:** The context of the caller. This is passed by default to each contract call, we don't need to worry about it. 
 
-To invoke the `mint` method run `sui client call --package <address> --module <name> --function mint`
+To invoke the `mint` method run `sui client call --package <address> --module <name> --function mint --args <args>`.
+We need to provide the 3 arguments detailed above in the same order. The mint call will look something like this:
+```
+sui client call \
+--package 0x00dc3293a4f7328f911269bad1315b137a59f5415e9479f3d4213358db56ba10 \
+--module coin \
+--function mint \
+--args 0x92589ac0a37a7b7f3fb901bcd90a2ddc2d1b59665d3d002e898290146833f166 1000000000 0x3a47eb941c01e49a4f68af79d43009771b99d96c92a3ff75a775389e30550adc 
+``` 
+And this is it! You have deployed a coin on Sui and minted its tokens
